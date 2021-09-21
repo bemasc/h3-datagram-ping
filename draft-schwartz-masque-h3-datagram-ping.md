@@ -6,7 +6,7 @@ category: std
 
 ipr: trust200902
 area: General
-workgroup: dprive
+workgroup: masque
 keyword: Internet-Draft
 
 stand_alone: yes
