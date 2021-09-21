@@ -37,6 +37,7 @@ PING is an HTTP Datagram Format Type {{!I-D.draft-ietf-masque-h3-datagram}}.
 ## Format
 
 PING Datagrams have the following format:
+
 ~~~
 PING {
   Sequence Number (i),
