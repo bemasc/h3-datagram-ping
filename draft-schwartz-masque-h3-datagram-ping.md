@@ -32,7 +32,7 @@ This draft defines an HTTP Datagram Format Type for measuring the functionality 
 
 # PING Datagram Format Type
 
-PING is an HTTP Datagram Format Type {{!I-D.draft-ietf-masque-h3-datagram}}.
+PING is an HTTP Datagram Format Type {{!I-D.draft-ietf-masque-h3-datagram}}.  It has no Additional Data.
 
 ## Format
 
@@ -46,13 +46,11 @@ PING {
 ~~~
 {: #ping-datagram-format title="PING Datagram Format"}
 
-The `Opaque Data` field contents are unconstrained.
+All `Sequence Number` and `Opaque Data` values are potentially valid.
 
 ## Use
 
-We define the "Requester" as the peer that registered this PING Datagram Context, and the "Responder" as the other peer.
-
-The Requester initiates a ping by sending a PING Datagram with any `Sequence Number` and `Opaque Data`.  The Responder MUST reply with a PING Datagram in the same context, with the same `Sequence Number` and empty `Opaque Data`.
+The sender emits a PING Datagram with any even `Sequence Number` and any `Opaque Data`.  Upon receiving a PING Datagram with an even `Sequence Number`, the recipient MUST reply with a PING Datagram whose `Sequence Number` is one larger, with empty `Opaque Data`.
 
 Intermediaries MUST forward PING Datagrams without modification, just like any other HTTP Datagram.
 
