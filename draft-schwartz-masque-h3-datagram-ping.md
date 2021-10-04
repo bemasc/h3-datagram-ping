@@ -75,4 +75,4 @@ IANA is directed to add the following entry to the "HTTP Datagram Format Types" 
 # Acknowledgments
 {:numbered="false"}
 
-TODO
+Thanks to Alex Chernyakhovsky for constructive input.
