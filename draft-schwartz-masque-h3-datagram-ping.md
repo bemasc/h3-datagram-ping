@@ -40,6 +40,8 @@ Note that these path characteristics can differ from those inferred from the und
 
 ## Registration
 
+Endpoints indicate support for PING Datagram type by including the header `"Datagram-Extension-Ping: ?1"` in the HTTP Request or Response.
+
 A PING Datagram context is registered by a REGISTER_PING_CONTEXT Capsule with the following structure:
 
 ~~~
@@ -84,6 +86,8 @@ Intermediaries MUST forward PING Datagrams without modification, just like any o
 The TIMESTAMP Datagram extension allows marking any datagram with a timestamp indicating the time that it was sent.  Where PING allows measurement of the round-trip time between peers, TIMESTAMP allows peers to observe changes in the one-way latency.  Increasing one-way latency can indicate congestion on that path, informing peers' congestion control decisions.
 
 ## Registration
+
+Endpoints indicate support for TIMESTAMP Datagram type by including the header `"Datagram-Extension-Timestamp: ?1"` in the HTTP Request or Response.
 
 A TIMESTAMP Datagram context is registered by a REGISTER_TIMESTAMP_CONTEXT Capsule with the following structure:
 
