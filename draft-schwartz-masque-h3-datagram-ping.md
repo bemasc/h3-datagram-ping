@@ -170,7 +170,9 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner Context ID = 0) ===>
 
 # IANA considerations
 
-IANA is directed to add the following entriess to the "HTTP Capsule Types" registry:
+## Capsule types
+
+IANA is directed to add the following entries to the "HTTP Capsule Types" registry:
 
 | Capsule Type               | Value | Specification   |
 | -------------------------- | ----- | --------------- |
@@ -179,6 +181,15 @@ IANA is directed to add the following entriess to the "HTTP Capsule Types" regis
 | REGISTER_TIMESTAMP_CONTEXT | TBD   | (This document) |
 | ACK_TIMESTAMP_CONTEXT      | TBD   | (This document) |
 | CLOSE_TIMESTAMP_CONTEXT    | TBD   | (This document) |
+
+## HTTP headers
+
+IANA is directed to add the following entries to the "Hypertext Transfer Protocol (HTTP) Field Name Registry":
+
+| Field Name                   | Template | Status    | Reference       | Comments |
+| ---------------------------- | -------- | --------- | --------------- | -------- |
+| Datagram-Extension-Ping      |          | permanent | (This document) |          |
+| Datagram-Extension-Timestamp |          | permanent | (This document) |          |
 
 --- back
 
