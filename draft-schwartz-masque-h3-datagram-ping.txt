@@ -4,17 +4,19 @@
 
 masque                                                       B. Schwartz
 Internet-Draft                                                Google LLC
-Intended status: Standards Track                          4 October 2021
-Expires: 7 April 2022
+Intended status: Standards Track                             26 May 2022
+Expires: 27 November 2022
 
 
-                           HTTP Datagram PING
+                    HTTP Datagram PING and TIMESTAMP
              draft-schwartz-masque-h3-datagram-ping-latest
 
 Abstract
 
-   This draft defines an HTTP Datagram Format Type for measuring the
-   functionality of a Datagram path.
+   This draft defines new mechanisms for measuring the functionality and
+   performance of an HTTP Datagram path.  These mechanisms can be used
+   with CONNECT-UDP, CONNECT-IP, or any other instantiation of the
+   Capsule Protocol.
 
 Discussion Venues
 
@@ -42,11 +44,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 April 2022.
+   This Internet-Draft will expire on 27 November 2022.
 
 Copyright Notice
 
-   Copyright (c) 2021 IETF Trust and the persons identified as the
+   Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -54,21 +56,27 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 Table of Contents
 
    1.  Conventions and Definitions
-   2.  PING Datagram Format Type
-     2.1.  Format
-     2.2.  Use
-   3.  Use cases
-   4.  IANA considerations
-   5.  References
-     5.1.  Normative References
-     5.2.  Informative References
+   2.  PING
+     2.1.  Registration
+     2.2.  Format
+     2.3.  Use
+   3.  TIMESTAMP
+     3.1.  Registration
+     3.2.  Format
+   4.  Examples
+   5.  IANA considerations
+     5.1.  Capsule types
+     5.2.  HTTP headers
+   6.  References
+     6.1.  Normative References
+     6.2.  Informative References
    Acknowledgments
    Author's Address
 
@@ -80,25 +88,48 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-2.  PING Datagram Format Type
+2.  PING
 
-   PING is an HTTP Datagram Format Type
-   [I-D.draft-ietf-masque-h3-datagram].  It has no Additional Data.
+   PING Datagrams can be used to characterize and monitor the end-to-end
+   HTTP Datagram path associated with an HTTP request.  For example,
+   HTTP endpoints can easily use PING Datagrams to estimate the round-
+   trip time and loss rate of the HTTP Datagram path.
 
-2.1.  Format
+   PING Datagrams are also suitable for use as DPLPMTUD Probe Packets
+   [RFC8899].  This enables endpoints to estimate the HTTP Datagram MTU
+   of each request-response pair, in order to avoid sending HTTP
+   Datagrams that will be dropped.
+
+   Note that these path characteristics can differ from those inferred
+   from the underlying transport (e.g.  QUIC), if the HTTP request
+   traverses one or more HTTP intermediaries (see Section 3.7 of
+   [I-D.draft-ietf-httpbis-semantics]).
+
+2.1.  Registration
+
+   Endpoints indicate support for the PING Datagram type using the Item
+   Structured Field "DG-Ping" in the HTTP Request and Response headers.
+   Its value MUST be an integer indicating the Context ID allocated for
+   PING datagrams.  (See Section 3.3.1 of [RFC8941] for information
+   about the integer format.)
+
+   Endpoints MUST NOT allocate more than one Context ID for PING
+   Datagrams.  As a side effect, this means that only the HTTP client
+   can choose the Context ID used for PING Datagrams.
+
+2.2.  Format
 
    PING Datagrams have the following format:
 
-   PING {
+   PING Datagram {
+     Context ID (i),
      Sequence Number (i),
      Opaque Data (..),
    }
 
-                       Figure 1: PING Datagram Format
-
    All Sequence Number and Opaque Data values are potentially valid.
 
-2.2.  Use
+2.3.  Use
 
    The sender emits a PING Datagram with any even Sequence Number and
    any Opaque Data.  Upon receiving a PING Datagram with an even
@@ -108,55 +139,201 @@ Table of Contents
    Intermediaries MUST forward PING Datagrams without modification, just
    like any other HTTP Datagram.
 
-3.  Use cases
+3.  TIMESTAMP
 
-   PING Datagrams can be used to characterize the end-to-end HTTP
-   Datagram path associated with an HTTP request.  For example, HTTP
-   endpoints can easily use PING Datagrams to estimate the round-trip
-   time and loss rate of the HTTP Datagram path.
+   The TIMESTAMP Datagram extension allows marking any datagram with a
+   timestamp indicating the time that it was sent.  Where PING allows
+   measurement of the round-trip time between peers, TIMESTAMP allows
+   peers to observe changes in the one-way latency.  Increasing one-way
+   latency can indicate congestion on that path, informing peers'
+   congestion control decisions.
 
-   PING Datagrams are also suitable for use as DPLPMTUD Probe Packets
-   [RFC8899].  This enables endpoints to estimate the HTTP Datagram MTU
-   of each Datagram path, in order to avoid sending HTTP Datagrams that
-   will be dropped.
+3.1.  Registration
 
-   Note that these path characteristics can differ from those inferred
-   from the underlying transport (e.g.  QUIC), if the HTTP request
-   traverses one or more HTTP intermediaries (see Section 3.7 of
-   [I-D.draft-ietf-httpbis-semantics]).
+   Endpoints indicate support for TIMESTAMP Datagram type by including
+   the boolean-valued Item Structured Field "DG-Timestamp: ?1" in the
+   HTTP Request and Response headers.  (See Section 3.3.6 of [RFC8941]
+   for information about the boolean format.)
 
-4.  IANA considerations
+   A TIMESTAMP Datagram context is opened by a
+   REGISTER_TIMESTAMP_CONTEXT Capsule with the following structure:
 
-   IANA is directed to add the following entry to the "HTTP Datagram
-   Format Types" registry:
+   REGISTER_TIMESTAMP_CONTEXT Capsule {
+     Context ID (i)
+     Inner Context ID (i)
+     Short Format (1)
+   }
 
-   *  Type: PING
+   "Inner Context ID" specifies how to interpret the payload after the
+   timestamp.  It MUST be smaller than "Context ID", and MUST already be
+   registered (although that registration does not need to have been
+   confirmed yet).
 
-   *  Value: TBD
+   If "Short Format" is 1 (i.e. true), timestamps MUST use the NTP Short
+   Format (Section 6 of [RFC5905]).  Otherwise, the full NTP Timestamp
+   Format MUST be used.
 
-   *  Reference: (This document)
+   Registration is confirmed by an ACK_TIMESTAMP_CONTEXT Capsule:
 
-5.  References
+   ACK_TIMESTAMP_CONTEXT Capsule {
+     Context ID (i)
+     Error Code (i)
+   }
 
-5.1.  Normative References
+   Error Code 0 means registration succeeded.  Error Code 1 means
+   registration failed.  All other error code values also mean failure,
+   but they are reserved for future use.
 
-   [I-D.draft-ietf-masque-h3-datagram]
-              Schinazi, D. and L. Pardue, "Using Datagrams with HTTP",
-              Work in Progress, Internet-Draft, draft-ietf-masque-h3-
-              datagram-03, 12 July 2021,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-masque-
-              h3-datagram-03>.
+   Registrations can be closed by a CLOSE_TIMESTAMP_CONTEXT Capsule:
+
+   CLOSE_TIMESTAMP_CONTEXT Capsule {
+     Context ID (i)
+   }
+
+   Endpoints SHOULD close any TIMESTAMP context before closing its Inner
+   Context.  If the Inner Context is closed first, datagrams
+   subsequently received on the TIMESTAMP context MUST be dropped.
+
+3.2.  Format
+
+   TIMESTAMP Datagrams have the following format:
+
+   TIMESTAMP Datagram {
+     Context ID (i),
+     Timestamp (32..64),
+     Inner Data (..),
+   }
+
+   "Timestamp" is an NTP timestamp in the short or full format, as
+   specified at registration.  The NTP Short Format occupies 4 bytes and
+   provides a resolution of 15 microseconds; the full NTP Timestamp
+   Format occupies 8 bytes and provides a resolution of 232 picoseconds.
+
+   "Inner Data" is a payload to be interpreted in accordance with this
+   context's "Inner Context ID".
+
+4.  Examples
+
+   This example shows the PING and TIMESTAMP types used in combination.
+   Note that the client is using a "false start" pattern, creating and
+   using two registrations before either is confirmed.
+
+Client                                                          Origin
+
+# Headers
+Capsule-Protocol: ?1
+DG-Timestamp: ?1
+DG-Ping: 42
+
+# Capsules
+REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==>
+
+# Datagrams
+[Context ID(6) + Timestamp(X) + Sequence Number(0) + Opaque Data] --->
+
+# Headers
+                                                   Capsule-Protocol: ?1
+                                                   DG-Timestamp: ?1
+                                                   DG-Ping: 42
+
+# Capsules
+              <== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
+
+# Datagrams
+               <--- [Context ID(6) + Timestamp(Y) + Sequence Number(1)]
+
+                 Figure 1: TIMESTAMP and PING example
+
+   TIMESTAMP can also be applied to other payload types, such as UDP
+   packets.  In CONNECT-UDP, these are pre-allocated with Context ID 0.
+   This example similarly shows a "false start" pattern, sending a
+   datagram before its context registration, or support for this format,
+   is confirmed.
+
+ Client                                               CONNECT-UDP Server
+
+ # Headers
+ :method = CONNECT
+ :protocol = connect-udp
+ Capsule-Protocol: ?1
+ DG-Timestamp: ?1
+
+ # Capsules
+ REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner ID = 0, Short = 1) ==>
+
+ # Datagrams
+ [Context ID(2) + Timestamp(X) + UDP Payload] --->
+
+ # Headers
+                                                    Capsule-Protocol: ?1
+                                                    DG-Timestamp: ?1
+
+ # Capsules
+               <== ACK_TIMESTAMP_CONTEXT(Context ID = 2, Error Code = 0)
+
+ # ... server waits for a UDP response packet.
+ # Datagrams
+                       <--- [Context ID(2) + Timestamp(Y) + UDP Payload]
+
+                  Figure 2: TIMESTAMP and UDP example
+
+5.  IANA considerations
+
+5.1.  Capsule types
+
+   IANA is directed to add the following entries to the "HTTP Capsule
+   Types" registry:
+
+         +============================+=======+=================+
+         | Capsule Type               | Value | Specification   |
+         +============================+=======+=================+
+         | REGISTER_TIMESTAMP_CONTEXT | TBD   | (This document) |
+         +----------------------------+-------+-----------------+
+         | ACK_TIMESTAMP_CONTEXT      | TBD   | (This document) |
+         +----------------------------+-------+-----------------+
+         | CLOSE_TIMESTAMP_CONTEXT    | TBD   | (This document) |
+         +----------------------------+-------+-----------------+
+
+                                 Table 1
+
+5.2.  HTTP headers
+
+   IANA is directed to add the following entries to the "Hypertext
+   Transfer Protocol (HTTP) Field Name Registry":
+
+   +==============+==========+===========+=================+==========+
+   | Field Name   | Template | Status    | Reference       | Comments |
+   +==============+==========+===========+=================+==========+
+   | DG-Ping      |          | permanent | (This document) |          |
+   +--------------+----------+-----------+-----------------+----------+
+   | DG-Timestamp |          | permanent | (This document) |          |
+   +--------------+----------+-----------+-----------------+----------+
+
+                                 Table 2
+
+6.  References
+
+6.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://datatracker.ietf.org/doc/html/rfc2119>.
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC5905]  Mills, D., Martin, J., Ed., Burbank, J., and W. Kasch,
+              "Network Time Protocol Version 4: Protocol and Algorithms
+              Specification", RFC 5905, DOI 10.17487/RFC5905, June 2010,
+              <https://www.rfc-editor.org/rfc/rfc5905>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
-5.2.  Informative References
+   [RFC8941]  Nottingham, M. and P-H. Kamp, "Structured Field Values for
+              HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
+              <https://www.rfc-editor.org/rfc/rfc8941>.
+
+6.2.  Informative References
 
    [I-D.draft-ietf-httpbis-semantics]
               Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
@@ -168,8 +345,7 @@ Table of Contents
    [RFC8899]  Fairhurst, G., Jones, T., Tüxen, M., Rüngeler, I., and T.
               Völker, "Packetization Layer Path MTU Discovery for
               Datagram Transports", RFC 8899, DOI 10.17487/RFC8899,
-              September 2020,
-              <https://datatracker.ietf.org/doc/html/rfc8899>.
+              September 2020, <https://www.rfc-editor.org/rfc/rfc8899>.
 
 Acknowledgments
 
@@ -179,5 +355,4 @@ Author's Address
 
    Benjamin Schwartz
    Google LLC
-
    Email: bemasc@google.com
