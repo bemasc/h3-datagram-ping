@@ -7,22 +7,23 @@
 <title>HTTP Datagram PING and TIMESTAMP</title>
 <meta content="Benjamin Schwartz" name="author">
 <meta content="
-       This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other CONNECT protocol that employs Context IDs and Capsules. 
+       This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol. 
     " name="description">
-<meta content="xml2rfc 3.11.1" name="generator">
+<meta content="xml2rfc 3.12.7" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-schwartz-masque-h3-datagram-ping-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.11.1
+  xml2rfc 3.12.7
     Python 3.9.7
     appdirs 1.4.4
     ConfigArgParse 1.3
-    google-i18n-address 2.5.0
+    google-i18n-address 2.5.1
     html5lib 1.1
     intervaltree 3.1.0
     Jinja2 2.11.3
     kitchen 1.2.6
-    lxml 4.6.4
+    lxml 4.6.5
+    MarkupSafe 2.0.1
     pycountry 20.7.3
     pyflakes 2.3.1
     PyYAML 5.4.1
@@ -1012,11 +1013,11 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HTTP Datagram PING and TIMESTAMP</td>
-<td class="right">December 2021</td>
+<td class="right">May 2022</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Schwartz</td>
-<td class="center">Expires 4 June 2022</td>
+<td class="center">Expires 27 November 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1029,12 +1030,12 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <dd class="internet-draft">draft-schwartz-masque-h3-datagram-ping-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-12-01" class="published">1 December 2021</time>
+<time datetime="2022-05-26" class="published">26 May 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-06-04">4 June 2022</time></dd>
+<dd class="expires"><time datetime="2022-11-27">27 November 2022</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1047,7 +1048,7 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <h1 id="title">HTTP Datagram PING and TIMESTAMP</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other CONNECT protocol that employs Context IDs and Capsules.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1079,7 +1080,7 @@ svg [stroke="fill"], svg [fill^="#fff"] {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 4 June 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 27 November 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1088,7 +1089,7 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2021 IETF Trust and the persons identified as the
+            Copyright (c) 2022 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1188,33 +1189,16 @@ appear in all capitals, as shown here.<a href="#section-1-1" class="pilcrow">¶<
       <h2 id="name-ping">
 <a href="#section-2" class="section-number selfRef">2. </a><a href="#name-ping" class="section-name selfRef">PING</a>
       </h2>
-<p id="section-2-1">PING Datagrams can be used to characterize the end-to-end HTTP Datagram path associated with an HTTP request.  For example, HTTP endpoints can easily use PING Datagrams to estimate the round-trip time and loss rate of the HTTP Datagram path.<a href="#section-2-1" class="pilcrow">¶</a></p>
-<p id="section-2-2">PING Datagrams are also suitable for use as DPLPMTUD Probe Packets <span>[<a href="#RFC8899" class="xref">RFC8899</a>]</span>.  This enables endpoints to estimate the HTTP Datagram MTU of each Datagram path, in order to avoid sending HTTP Datagrams that will be dropped.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-1">PING Datagrams can be used to characterize and monitor the end-to-end HTTP Datagram path associated with an HTTP request.  For example, HTTP endpoints can easily use PING Datagrams to estimate the round-trip time and loss rate of the HTTP Datagram path.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">PING Datagrams are also suitable for use as DPLPMTUD Probe Packets <span>[<a href="#RFC8899" class="xref">RFC8899</a>]</span>.  This enables endpoints to estimate the HTTP Datagram MTU of each request-response pair, in order to avoid sending HTTP Datagrams that will be dropped.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">Note that these path characteristics can differ from those inferred from the underlying transport (e.g. QUIC), if the HTTP request traverses one or more HTTP intermediaries (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-19#section-3.7" class="relref">Section 3.7</a> of [<a href="#I-D.draft-ietf-httpbis-semantics" class="xref">I-D.draft-ietf-httpbis-semantics</a>]</span>).<a href="#section-2-3" class="pilcrow">¶</a></p>
 <div id="registration">
 <section id="section-2.1">
         <h3 id="name-registration">
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-registration" class="section-name selfRef">Registration</a>
         </h3>
-<p id="section-2.1-1">Endpoints indicate support for PING Datagram type by including the header <code>"Datagram-Extension-Ping: ?1"</code> in the HTTP Request or Response.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1-2">A PING Datagram context is registered by a REGISTER_PING_CONTEXT Capsule with the following structure:<a href="#section-2.1-2" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.1-3">
-<pre>
-REGISTER_PING_CONTEXT Capsule {
-  Context ID (i)
-}
-</pre><a href="#section-2.1-3" class="pilcrow">¶</a>
-</div>
-<p id="section-2.1-4">Registration is confirmed by an ACK_PING_CONTEXT Capsule:<a href="#section-2.1-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.1-5">
-<pre>
-ACK_PING_CONTEXT Capsule {
-  Context ID (i)
-  Error Code (i)
-}
-</pre><a href="#section-2.1-5" class="pilcrow">¶</a>
-</div>
-<p id="section-2.1-6">Error Code 0 means registration succeeded.  Error Code 1 means registration failed.  All other error code values also mean failure, but they are reserved for future use.<a href="#section-2.1-6" class="pilcrow">¶</a></p>
+<p id="section-2.1-1">Endpoints indicate support for the PING Datagram type using the Item Structured Field "DG-Ping" in the HTTP Request and Response headers.  Its value MUST be an integer indicating the Context ID allocated for PING datagrams.  (See <span><a href="https://rfc-editor.org/rfc/rfc8941#section-3.3.1" class="relref">Section 3.3.1</a> of [<a href="#RFC8941" class="xref">RFC8941</a>]</span> for information about the integer format.)<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">Endpoints MUST NOT allocate more than one Context ID for PING Datagrams.  As a side effect, this means that only the HTTP client can choose the Context ID used for PING Datagrams.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="format">
@@ -1257,36 +1241,38 @@ PING Datagram {
         <h3 id="name-registration-2">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-registration-2" class="section-name selfRef">Registration</a>
         </h3>
-<p id="section-3.1-1">Endpoints indicate support for TIMESTAMP Datagram type by including the header <code>"Datagram-Extension-Timestamp: ?1"</code> in the HTTP Request or Response.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">A TIMESTAMP Datagram context is registered by a REGISTER_TIMESTAMP_CONTEXT Capsule with the following structure:<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">Endpoints indicate support for TIMESTAMP Datagram type by including the boolean-valued Item Structured Field "DG-Timestamp: ?1" in the HTTP Request and Response headers.  (See <span><a href="https://rfc-editor.org/rfc/rfc8941#section-3.3.6" class="relref">Section 3.3.6</a> of [<a href="#RFC8941" class="xref">RFC8941</a>]</span> for information about the boolean format.)<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">A TIMESTAMP Datagram context is opened by a REGISTER_TIMESTAMP_CONTEXT Capsule with the following structure:<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.1-3">
 <pre>
 REGISTER_TIMESTAMP_CONTEXT Capsule {
   Context ID (i)
   Inner Context ID (i)
+  Short Format (1)
 }
 </pre><a href="#section-3.1-3" class="pilcrow">¶</a>
 </div>
-<p id="section-3.1-4"><code>Inner Context ID</code> specifies how to interpret the payload after the timestamp.  It MUST be smaller than <code>Context ID</code>, and MUST already be registered (although that registration does not need to have been confirmed yet).<a href="#section-3.1-4" class="pilcrow">¶</a></p>
-<p id="section-3.1-5">Registration is confirmed by an ACK_TIMESTAMP_CONTEXT Capsule:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-6">
+<p id="section-3.1-4">"Inner Context ID" specifies how to interpret the payload after the timestamp.  It MUST be smaller than "Context ID", and MUST already be registered (although that registration does not need to have been confirmed yet).<a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">If "Short Format" is 1 (i.e. true), timestamps MUST use the NTP Short Format (<span><a href="https://rfc-editor.org/rfc/rfc5905#section-6" class="relref">Section 6</a> of [<a href="#RFC5905" class="xref">RFC5905</a>]</span>).  Otherwise, the full NTP Timestamp Format MUST be used.<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6">Registration is confirmed by an ACK_TIMESTAMP_CONTEXT Capsule:<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-7">
 <pre>
 ACK_TIMESTAMP_CONTEXT Capsule {
   Context ID (i)
   Error Code (i)
 }
-</pre><a href="#section-3.1-6" class="pilcrow">¶</a>
+</pre><a href="#section-3.1-7" class="pilcrow">¶</a>
 </div>
-<p id="section-3.1-7">Error Code 0 means registration succeeded.  Error Code 1 means registration failed.  All other error code values also mean failure, but they are reserved for future use.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
-<p id="section-3.1-8">Registrations can be closed by a CLOSE_TIMESTAMP_CONTEXT Capsule:<a href="#section-3.1-8" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-3.1-9">
+<p id="section-3.1-8">Error Code 0 means registration succeeded.  Error Code 1 means registration failed.  All other error code values also mean failure, but they are reserved for future use.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<p id="section-3.1-9">Registrations can be closed by a CLOSE_TIMESTAMP_CONTEXT Capsule:<a href="#section-3.1-9" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-10">
 <pre>
 CLOSE_TIMESTAMP_CONTEXT Capsule {
   Context ID (i)
 }
-</pre><a href="#section-3.1-9" class="pilcrow">¶</a>
+</pre><a href="#section-3.1-10" class="pilcrow">¶</a>
 </div>
-<p id="section-3.1-10">Endpoints SHOULD close any TIMESTAMP context before closing its inner context.<a href="#section-3.1-10" class="pilcrow">¶</a></p>
+<p id="section-3.1-11">Endpoints SHOULD close any TIMESTAMP context before closing its Inner Context.  If the Inner Context is closed first, datagrams subsequently received on the TIMESTAMP context MUST be dropped.<a href="#section-3.1-11" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="format-1">
@@ -1299,12 +1285,13 @@ CLOSE_TIMESTAMP_CONTEXT Capsule {
 <pre>
 TIMESTAMP Datagram {
   Context ID (i),
-  Timestamp (32),
+  Timestamp (32..64),
   Inner Data (..),
 }
 </pre><a href="#section-3.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.2-3"><code>Timestamp</code> is an NTP short-format timestamp (<span><a href="https://rfc-editor.org/rfc/rfc5905#section-6" class="relref">Section 6</a> of [<a href="#RFC5905" class="xref">RFC5905</a>]</span>), which provides a resolution of ~15 microseconds.  <code>Inner Data</code> is a payload to be interpreted in accordance with this context's <code>Inner Context ID</code>.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">"Timestamp" is an NTP timestamp in the short or full format, as specified at registration.  The NTP Short Format occupies 4 bytes and provides a resolution of 15 microseconds; the full NTP Timestamp Format occupies 8 bytes and provides a resolution of 232 picoseconds.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-4">"Inner Data" is a payload to be interpreted in accordance with this context's "Inner Context ID".<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1314,21 +1301,33 @@ TIMESTAMP Datagram {
       <h2 id="name-examples">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
       </h2>
-<p id="section-4-1">PING and TIMESTAMP can be combined as follows.  Note that the client is using a "false start" pattern, sending a dependent registration before the first is confirmed.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-1">This example shows the PING and TIMESTAMP types used in combination.  Note that the client is using a "false start" pattern, creating and using two registrations before either is confirmed.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <span id="name-timestamp-and-ping-example"></span><div id="timestamp-ping">
 <figure id="figure-1">
         <div class="alignLeft art-text artwork" id="section-4-2.1">
 <pre>
-Client                                                    MASQUE Server
+Client                                                          Origin
+
+# Headers
+Capsule-Protocol: ?1
+DG-Timestamp: ?1
+DG-Ping: 42
 
 # Capsules
-REGISTER_PING_CONTEXT(Context ID = 4) ===&gt;
-REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner Context ID = 4) ===&gt;
-                  &lt;=== ACK_PING_CONTEXT(Context ID = 4, Error Code = 0)
-             &lt;=== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
+REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==&gt;
 
 # Datagrams
 [Context ID(6) + Timestamp(X) + Sequence Number(0) + Opaque Data] ---&gt;
+
+# Headers
+                                                   Capsule-Protocol: ?1
+                                                   DG-Timestamp: ?1
+                                                   DG-Ping: 42
+
+# Capsules
+              &lt;== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
+
+# Datagrams
                &lt;--- [Context ID(6) + Timestamp(Y) + Sequence Number(1)]
 </pre>
 </div>
@@ -1336,18 +1335,34 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner Context ID = 4) ===&gt;
 <a href="#name-timestamp-and-ping-example" class="selfRef">TIMESTAMP and PING example</a>
         </figcaption></figure>
 </div>
-<p id="section-4-3">TIMESTAMP can also be applied to other payload types, such as UDP packets.  In CONNECT-UDP, these are pre-allocated with Context ID 0.  This example shows a different "false start" pattern, sending a datagram before its context registration is confirmed.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-3">TIMESTAMP can also be applied to other payload types, such as UDP packets.  In CONNECT-UDP, these are pre-allocated with Context ID 0.  This example similarly shows a "false start" pattern, sending a datagram before its context registration, or support for this format, is confirmed.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <span id="name-timestamp-and-udp-example"></span><div id="timestamp-UDP">
 <figure id="figure-2">
         <div class="alignLeft art-text artwork" id="section-4-4.1">
 <pre>
-Client                                                    MASQUE Server
+Client                                               CONNECT-UDP Server
 
-REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner Context ID = 0) ===&gt;
+# Headers
+:method = CONNECT
+:protocol = connect-udp
+Capsule-Protocol: ?1
+DG-Timestamp: ?1
+
+# Capsules
+REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner ID = 0, Short = 1) ==&gt;
+
+# Datagrams
 [Context ID(2) + Timestamp(X) + UDP Payload] ---&gt;
+
+# Headers
+                                                   Capsule-Protocol: ?1
+                                                   DG-Timestamp: ?1
+
+# Capsules
              &lt;=== ACK_TIMESTAMP_CONTEXT(Context ID = 2, Error Code = 0)
 
-                              # Server waits for a UDP response packet.
+# Datagrams
+# ... server waits for a UDP response packet.
                       &lt;--- [Context ID(2) + Timestamp(Y) + UDP Payload]
 </pre>
 </div>
@@ -1378,16 +1393,6 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner Context ID = 0) ===&gt;
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">REGISTER_PING_CONTEXT</td>
-              <td class="text-left" rowspan="1" colspan="1">TBD</td>
-              <td class="text-left" rowspan="1" colspan="1">(This document)</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">ACK_PING_CONTEXT</td>
-              <td class="text-left" rowspan="1" colspan="1">TBD</td>
-              <td class="text-left" rowspan="1" colspan="1">(This document)</td>
-            </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">REGISTER_TIMESTAMP_CONTEXT</td>
               <td class="text-left" rowspan="1" colspan="1">TBD</td>
@@ -1426,14 +1431,14 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner Context ID = 0) ===&gt;
           </thead>
           <tbody>
             <tr>
-              <td class="text-left" rowspan="1" colspan="1">Datagram-Extension-Ping</td>
+              <td class="text-left" rowspan="1" colspan="1">DG-Ping</td>
               <td class="text-left" rowspan="1" colspan="1"> </td>
               <td class="text-left" rowspan="1" colspan="1">permanent</td>
               <td class="text-left" rowspan="1" colspan="1">(This document)</td>
               <td class="text-left" rowspan="1" colspan="1"> </td>
             </tr>
             <tr>
-              <td class="text-left" rowspan="1" colspan="1">Datagram-Extension-Timestamp</td>
+              <td class="text-left" rowspan="1" colspan="1">DG-Timestamp</td>
               <td class="text-left" rowspan="1" colspan="1"> </td>
               <td class="text-left" rowspan="1" colspan="1">permanent</td>
               <td class="text-left" rowspan="1" colspan="1">(This document)</td>
@@ -1463,8 +1468,12 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner Context ID = 0) ===&gt;
 <span class="refAuthor">Mills, D.</span>, <span class="refAuthor">Martin, J., Ed.</span>, <span class="refAuthor">Burbank, J.</span>, and <span class="refAuthor">W. Kasch</span>, <span class="refTitle">"Network Time Protocol Version 4: Protocol and Algorithms Specification"</span>, <span class="seriesInfo">RFC 5905</span>, <span class="seriesInfo">DOI 10.17487/RFC5905</span>, <time datetime="2010-06" class="refDate">June 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5905">https://www.rfc-editor.org/rfc/rfc5905</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8941">[RFC8941]</dt>
+      <dd>
+<span class="refAuthor">Nottingham, M.</span> and <span class="refAuthor">P-H. Kamp</span>, <span class="refTitle">"Structured Field Values for HTTP"</span>, <span class="seriesInfo">RFC 8941</span>, <span class="seriesInfo">DOI 10.17487/RFC8941</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8941">https://www.rfc-editor.org/rfc/rfc8941</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
