@@ -22,7 +22,7 @@ author:
 
 --- abstract
 
-This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol.
+This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol that relies on Context IDs.
 
 --- middle
 
@@ -130,26 +130,28 @@ This example shows the PING and TIMESTAMP types used in combination.  Note that 
 ~~~
 Client                                                          Origin
 
-# Headers
+# Request Headers
+:method = CONNECT
+:protocol = any-capsule-protocol-with-context-ids
 Capsule-Protocol: ?1
 DG-Timestamp: ?1
 DG-Ping: 42
 
-# Capsules
+# Request Capsules
 REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==>
 
-# Datagrams
+# Request Datagrams
 [Context ID(6) + Timestamp(X) + Sequence Number(0) + Opaque Data] --->
 
-# Headers
+# Response Headers
                                                    Capsule-Protocol: ?1
                                                    DG-Timestamp: ?1
                                                    DG-Ping: 42
 
-# Capsules
+# Response Capsules
               <== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
 
-# Datagrams
+# Response Datagrams
                <--- [Context ID(6) + Timestamp(Y) + Sequence Number(1)]
 ~~~
 {: #timestamp-ping example title="TIMESTAMP and PING example"}
@@ -159,27 +161,27 @@ TIMESTAMP can also be applied to other payload types, such as UDP packets.  In C
 ~~~
 Client                                               CONNECT-UDP Server
 
-# Headers
+# Request Headers
 :method = CONNECT
 :protocol = connect-udp
 Capsule-Protocol: ?1
 DG-Timestamp: ?1
 
-# Capsules
+# Request Capsules
 REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner ID = 0, Short = 1) ==>
 
-# Datagrams
+# Request Datagrams
 [Context ID(2) + Timestamp(X) + UDP Payload] --->
 
-# Headers
+# Response Headers
                                                    Capsule-Protocol: ?1
                                                    DG-Timestamp: ?1
 
-# Capsules
+# Response Capsules
               <== ACK_TIMESTAMP_CONTEXT(Context ID = 2, Error Code = 0)
 
 # ... server waits for a UDP response packet.
-# Datagrams
+# Response Datagrams
                       <--- [Context ID(2) + Timestamp(Y) + UDP Payload]
 ~~~
 {: #timestamp-UDP example title="TIMESTAMP and UDP example"}
