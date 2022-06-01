@@ -7,7 +7,7 @@
 <title>HTTP Datagram PING and TIMESTAMP</title>
 <meta content="Benjamin Schwartz" name="author">
 <meta content="
-       This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol. 
+       This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol that relies on Context IDs. 
     " name="description">
 <meta content="xml2rfc 3.12.7" name="generator">
 <meta content="Internet-Draft" name="keyword">
@@ -1013,11 +1013,11 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">HTTP Datagram PING and TIMESTAMP</td>
-<td class="right">May 2022</td>
+<td class="right">June 2022</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Schwartz</td>
-<td class="center">Expires 27 November 2022</td>
+<td class="center">Expires 3 December 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1030,12 +1030,12 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <dd class="internet-draft">draft-schwartz-masque-h3-datagram-ping-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-05-26" class="published">26 May 2022</time>
+<time datetime="2022-06-01" class="published">1 June 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-11-27">27 November 2022</time></dd>
+<dd class="expires"><time datetime="2022-12-03">3 December 2022</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1048,7 +1048,7 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <h1 id="title">HTTP Datagram PING and TIMESTAMP</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This draft defines new mechanisms for measuring the functionality and performance of an HTTP Datagram path.  These mechanisms can be used with CONNECT-UDP, CONNECT-IP, or any other instantiation of the Capsule Protocol that relies on Context IDs.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1080,7 +1080,7 @@ svg [stroke="fill"], svg [fill^="#fff"] {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 27 November 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1308,26 +1308,28 @@ TIMESTAMP Datagram {
 <pre>
 Client                                                          Origin
 
-# Headers
+# Request Headers
+:method = CONNECT
+:protocol = any-capsule-protocol-with-context-ids
 Capsule-Protocol: ?1
 DG-Timestamp: ?1
 DG-Ping: 42
 
-# Capsules
+# Request Capsules
 REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==&gt;
 
-# Datagrams
+# Request Datagrams
 [Context ID(6) + Timestamp(X) + Sequence Number(0) + Opaque Data] ---&gt;
 
-# Headers
+# Response Headers
                                                    Capsule-Protocol: ?1
                                                    DG-Timestamp: ?1
                                                    DG-Ping: 42
 
-# Capsules
+# Response Capsules
               &lt;== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
 
-# Datagrams
+# Response Datagrams
                &lt;--- [Context ID(6) + Timestamp(Y) + Sequence Number(1)]
 </pre>
 </div>
@@ -1342,27 +1344,27 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==&gt;
 <pre>
 Client                                               CONNECT-UDP Server
 
-# Headers
+# Request Headers
 :method = CONNECT
 :protocol = connect-udp
 Capsule-Protocol: ?1
 DG-Timestamp: ?1
 
-# Capsules
+# Request Capsules
 REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner ID = 0, Short = 1) ==&gt;
 
-# Datagrams
+# Request Datagrams
 [Context ID(2) + Timestamp(X) + UDP Payload] ---&gt;
 
-# Headers
+# Response Headers
                                                    Capsule-Protocol: ?1
                                                    DG-Timestamp: ?1
 
-# Capsules
+# Response Capsules
               &lt;== ACK_TIMESTAMP_CONTEXT(Context ID = 2, Error Code = 0)
 
 # ... server waits for a UDP response packet.
-# Datagrams
+# Response Datagrams
                       &lt;--- [Context ID(2) + Timestamp(Y) + UDP Payload]
 </pre>
 </div>

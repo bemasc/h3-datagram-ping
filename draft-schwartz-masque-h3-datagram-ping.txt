@@ -4,8 +4,8 @@
 
 masque                                                       B. Schwartz
 Internet-Draft                                                Google LLC
-Intended status: Standards Track                             26 May 2022
-Expires: 27 November 2022
+Intended status: Standards Track                             1 June 2022
+Expires: 3 December 2022
 
 
                     HTTP Datagram PING and TIMESTAMP
@@ -16,7 +16,7 @@ Abstract
    This draft defines new mechanisms for measuring the functionality and
    performance of an HTTP Datagram path.  These mechanisms can be used
    with CONNECT-UDP, CONNECT-IP, or any other instantiation of the
-   Capsule Protocol.
+   Capsule Protocol that relies on Context IDs.
 
 Discussion Venues
 
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 November 2022.
+   This Internet-Draft will expire on 3 December 2022.
 
 Copyright Notice
 
@@ -220,26 +220,28 @@ Table of Contents
 
 Client                                                          Origin
 
-# Headers
+# Request Headers
+:method = CONNECT
+:protocol = any-capsule-protocol-with-context-ids
 Capsule-Protocol: ?1
 DG-Timestamp: ?1
 DG-Ping: 42
 
-# Capsules
+# Request Capsules
 REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==>
 
-# Datagrams
+# Request Datagrams
 [Context ID(6) + Timestamp(X) + Sequence Number(0) + Opaque Data] --->
 
-# Headers
+# Response Headers
                                                    Capsule-Protocol: ?1
                                                    DG-Timestamp: ?1
                                                    DG-Ping: 42
 
-# Capsules
+# Response Capsules
               <== ACK_TIMESTAMP_CONTEXT(Context ID = 6, Error Code = 0)
 
-# Datagrams
+# Response Datagrams
                <--- [Context ID(6) + Timestamp(Y) + Sequence Number(1)]
 
                  Figure 1: TIMESTAMP and PING example
@@ -252,27 +254,27 @@ REGISTER_TIMESTAMP_CONTEXT(Context ID = 6, Inner ID = 42, Short = 1) ==>
 
  Client                                               CONNECT-UDP Server
 
- # Headers
+ # Request Headers
  :method = CONNECT
  :protocol = connect-udp
  Capsule-Protocol: ?1
  DG-Timestamp: ?1
 
- # Capsules
+ # Request Capsules
  REGISTER_TIMESTAMP_CONTEXT(Context ID = 2, Inner ID = 0, Short = 1) ==>
 
- # Datagrams
+ # Request Datagrams
  [Context ID(2) + Timestamp(X) + UDP Payload] --->
 
- # Headers
+ # Response Headers
                                                     Capsule-Protocol: ?1
                                                     DG-Timestamp: ?1
 
- # Capsules
+ # Response Capsules
                <== ACK_TIMESTAMP_CONTEXT(Context ID = 2, Error Code = 0)
 
  # ... server waits for a UDP response packet.
- # Datagrams
+ # Response Datagrams
                        <--- [Context ID(2) + Timestamp(Y) + UDP Payload]
 
                   Figure 2: TIMESTAMP and UDP example
